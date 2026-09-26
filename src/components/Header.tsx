@@ -1,0 +1,128 @@
+import { useState } from "react";
+import { Link, NavLink } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
+import { Menu, X, Home, LayoutTemplate, BadgeDollarSign, Info, ArrowRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import BrandLogo from "@/components/BrandLogo";
+import { brand } from "@/lib/brand";
+import { useLanguage } from "@/contexts/LanguageContext";
+import LanguageSwitcher from "./LanguageSwitcher";
+import { cn } from "@/lib/utils";
+
+const Header = () => {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { t } = useLanguage();
+
+  const navLinks = [
+    { name: t("nav.home"), href: "/", key: "home", icon: Home },
+    { name: t("nav.templates"), href: "/templates", key: "templates", icon: LayoutTemplate },
+    { name: t("nav.pricing"), href: "/pricing", key: "pricing", icon: BadgeDollarSign },
+    { name: t("nav.about"), href: "/about", key: "about", icon: Info },
+  ];
+
+  return (
+    <header className="fixed top-0 left-0 right-0 z-50 bg-background/85 backdrop-blur-xl border-b border-border/80 shadow-soft">
+      <div className="container mx-auto px-4">
+        <div className="flex items-center justify-between h-16 md:h-20">
+          <Link to="/" className="flex items-center gap-2.5 group">
+            <BrandLogo className="h-10 w-10 shadow-soft transition-transform duration-300 group-hover:scale-105" />
+            <span className="font-display text-xl font-bold text-foreground tracking-tight">
+              {brand.name}
+            </span>
+          </Link>
+
+          <nav className="hidden md:flex items-center gap-1">
+            {navLinks.map((link) => (
+              <NavLink
+                key={link.key}
+                to={link.href}
+                end={link.href === "/"}
+                className={({ isActive }) =>
+                  cn(
+                    "inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-200",
+                    isActive
+                      ? "bg-secondary text-foreground"
+                      : "text-muted-foreground hover:text-foreground hover:bg-secondary/70"
+                  )
+                }
+              >
+                <link.icon className="w-4 h-4" />
+                {link.name}
+              </NavLink>
+            ))}
+          </nav>
+
+          <div className="hidden md:flex items-center gap-2">
+            <LanguageSwitcher />
+            <Button variant="ghost" size="sm">
+              {t("nav.signIn")}
+            </Button>
+            <Button variant="hero" size="sm" asChild>
+              <Link to="/templates">
+                {t("nav.getStarted")}
+                <ArrowRight className="w-4 h-4 rtl:rotate-180" />
+              </Link>
+            </Button>
+          </div>
+
+          <button
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            className="md:hidden p-2 rounded-lg text-foreground hover:bg-secondary transition-colors"
+            aria-label={isMenuOpen ? "Close menu" : "Open menu"}
+          >
+            {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          </button>
+        </div>
+      </div>
+
+      <AnimatePresence>
+        {isMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            className="md:hidden overflow-hidden bg-background border-b border-border"
+          >
+            <nav className="container mx-auto px-4 py-4 flex flex-col gap-1">
+              {navLinks.map((link) => (
+                <NavLink
+                  key={link.key}
+                  to={link.href}
+                  end={link.href === "/"}
+                  className={({ isActive }) =>
+                    cn(
+                      "inline-flex items-center gap-3 rounded-xl px-3 py-3 font-medium transition-colors",
+                      isActive
+                        ? "bg-secondary text-foreground"
+                        : "text-muted-foreground hover:text-foreground hover:bg-secondary/70"
+                    )
+                  }
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  <link.icon className="w-5 h-5 text-primary" />
+                  {link.name}
+                </NavLink>
+              ))}
+              <div className="flex flex-col gap-2 pt-4 mt-2 border-t border-border">
+                <div className="flex justify-center pb-2">
+                  <LanguageSwitcher />
+                </div>
+                <Button variant="ghost" className="w-full">
+                  {t("nav.signIn")}
+                </Button>
+                <Button variant="hero" className="w-full" asChild>
+                  <Link to="/templates" onClick={() => setIsMenuOpen(false)}>
+                    {t("nav.getStarted")}
+                    <ArrowRight className="w-4 h-4 rtl:rotate-180" />
+                  </Link>
+                </Button>
+              </div>
+            </nav>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </header>
+  );
+};
+
+export default Header;
