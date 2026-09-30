@@ -4,70 +4,40 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useAuth } from "@/contexts/AuthContext";
+import { PLANS, type PlanId } from "@/lib/plans";
 
 const Pricing = () => {
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
   const ar = language === "ar";
+  const { isAuthenticated } = useAuth();
 
-  const plans = ar
-    ? [
-        {
-          name: "مجاني",
-          price: "0",
-          period: "للأبد",
-          detail: "لمن يريد نشر قائمة واحدة وتجربتها مع الضيوف.",
-          features: ["قائمة منشورة واحدة", "كل تصاميم القوالب", "عربي وإنجليزي مع اتجاه من اليمين", "رابط مشاركة وتحميل PDF"],
-          cta: "ابدأ مجاناً",
-          highlighted: false,
-        },
-        {
-          name: "المطعم",
-          price: "199",
-          period: "جنيه / شهر",
-          detail: "للفرع الذي يحدّث أسعاره وقوائمه كل أسبوع.",
-          features: ["حتى 5 قوائم", "عملات متعددة وصفحات متعددة", "تنسيق الخط لكل نص", "شعار المطعم على القائمة"],
-          cta: "اختر هذه الخطة",
-          highlighted: true,
-        },
-        {
-          name: "الأعمال",
-          price: "499",
-          period: "جنيه / شهر",
-          detail: "لمجموعة فروع تريد نفس الهوية على كل قائمة.",
-          features: ["قوائم بلا حد", "فروع وقوائم منفصلة", "دعم أولوية على واتساب", "تحديث الأسعار يظهر فوراً للضيوف"],
-          cta: "تحدّث معنا",
-          highlighted: false,
-        },
-      ]
-    : [
-        {
-          name: "Free",
-          price: "0",
-          period: "EGP forever",
-          detail: "Publish one menu and put it in front of guests.",
-          features: ["1 published menu", "Every template design", "Arabic and English with RTL", "Share link and PDF download"],
-          cta: "Start free",
-          highlighted: false,
-        },
-        {
-          name: "Restaurant",
-          price: "199",
-          period: "EGP / month",
-          detail: "For a venue that changes prices and sections every week.",
-          features: ["Up to 5 menus", "Multiple currencies and pages", "Type controls for every text", "Your logo on the menu"],
-          cta: "Choose this plan",
-          highlighted: true,
-        },
-        {
-          name: "Business",
-          price: "499",
-          period: "EGP / month",
-          detail: "For a group of branches that should look like one brand.",
-          features: ["Unlimited menus", "Separate menus per branch", "Priority WhatsApp support", "Price changes go live for guests"],
-          cta: "Talk to us",
-          highlighted: false,
-        },
-      ];
+  const planMeta: Record<
+    PlanId,
+    { detailEn: string; detailAr: string; ctaEn: string; ctaAr: string; highlighted: boolean }
+  > = {
+    free: {
+      detailEn: "Publish one menu and put it in front of guests.",
+      detailAr: "لمن يريد نشر قائمة واحدة وتجربتها مع الضيوف.",
+      ctaEn: "Start free",
+      ctaAr: "ابدأ مجاناً",
+      highlighted: false,
+    },
+    restaurant: {
+      detailEn: "For a venue that changes prices and sections every week.",
+      detailAr: "للفرع الذي يحدّث أسعاره وقوائمه كل أسبوع.",
+      ctaEn: "Choose this plan",
+      ctaAr: "اختر هذه الخطة",
+      highlighted: true,
+    },
+    business: {
+      detailEn: "For a group of branches that should look like one brand.",
+      detailAr: "لمجموعة فروع تريد نفس الهوية على كل قائمة.",
+      ctaEn: "Choose Business",
+      ctaAr: "اختر الأعمال",
+      highlighted: false,
+    },
+  };
 
   const faqs = ar
     ? [
@@ -75,13 +45,22 @@ const Pricing = () => {
         ["هل القائمة تعمل على الموبايل؟", "نعم. صفحة الضيف مصممة للهاتف، والضيف يبدل بين العربي والإنجليزي من أعلى الصفحة."],
         ["هل أقدر أغيّر العملة؟", "نعم. من صفحة التصميم تختار الجنيه أو الدولار أو الريال وغيرها، وتظهر على كل الأسعار."],
         ["متى يتحدث السعر عند الضيف؟", "بمجرد حفظ القائمة. الرابط نفسه يعرض آخر نسخة محفوظة."],
+        ["كيف أرقّي الاشتراك؟", "من صفحة الملف الشخصي اختر الخطة. حدود القوائم تُطبَّق فوراً."],
       ]
     : [
         ["Do I need a card to start?", "No. The free plan opens from the templates, with nothing to pay."],
         ["Does the menu work on a phone?", "Yes. The guest page is built for phones, and guests can switch between Arabic and English from the top bar."],
         ["Can I change the currency?", "Yes. In the builder you pick EGP, USD, SAR, and others, and every price uses that code."],
         ["When do guests see a new price?", "As soon as you save. The same link shows the latest saved menu."],
+        ["How do I upgrade?", "Open your profile and pick a plan. Menu limits apply immediately."],
       ];
+
+  const planHref = (planId: PlanId) => {
+    if (!isAuthenticated) {
+      return `/register?next=${encodeURIComponent(`/profile?plan=${planId}`)}`;
+    }
+    return `/profile?plan=${planId}#plans`;
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -103,33 +82,42 @@ const Pricing = () => {
           </div>
 
           <div className="mx-auto mt-12 grid max-w-5xl gap-6 md:grid-cols-3">
-            {plans.map((plan) => (
-              <article
-                key={plan.name}
-                className={`flex flex-col rounded-2xl border p-6 shadow-soft ${plan.highlighted ? "border-primary bg-card ring-2 ring-primary/30" : "border-border bg-card"}`}
-              >
-                <h2 className="font-display text-xl font-semibold text-foreground">{plan.name}</h2>
-                <p className="mt-2 text-sm text-muted-foreground">{plan.detail}</p>
-                <p className="mt-6 font-display text-4xl font-bold text-foreground">
-                  {plan.price}
-                  <span className="ms-2 text-sm font-medium text-muted-foreground">{plan.period}</span>
-                </p>
-                <ul className="mt-6 flex-1 space-y-3">
-                  {plan.features.map((feature) => (
-                    <li key={feature} className="flex items-start gap-2 text-sm text-foreground">
-                      <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-                      <span>{feature}</span>
-                    </li>
-                  ))}
-                </ul>
-                <Button variant={plan.highlighted ? "hero" : "outline"} className="mt-8" asChild>
-                  <Link to="/templates">
-                    {plan.cta}
-                    <ArrowRight className="h-4 w-4 rtl:rotate-180" />
-                  </Link>
-                </Button>
-              </article>
-            ))}
+            {PLANS.map((plan) => {
+              const meta = planMeta[plan.id];
+              return (
+                <article
+                  key={plan.id}
+                  className={`flex flex-col rounded-2xl border p-6 shadow-soft ${meta.highlighted ? "border-primary bg-card ring-2 ring-primary/30" : "border-border bg-card"}`}
+                >
+                  <h2 className="font-display text-xl font-semibold text-foreground">
+                    {ar ? plan.nameAr : plan.nameEn}
+                  </h2>
+                  <p className="mt-2 text-sm text-muted-foreground">
+                    {ar ? meta.detailAr : meta.detailEn}
+                  </p>
+                  <p className="mt-6 font-display text-4xl font-bold text-foreground">
+                    {ar ? plan.priceAr : plan.priceEn}
+                    <span className="ms-2 text-sm font-medium text-muted-foreground">
+                      {ar ? plan.periodAr : plan.periodEn}
+                    </span>
+                  </p>
+                  <ul className="mt-6 flex-1 space-y-3">
+                    {(ar ? plan.featuresAr : plan.featuresEn).map((feature) => (
+                      <li key={feature} className="flex items-start gap-2 text-sm text-foreground">
+                        <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                        <span>{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  <Button variant={meta.highlighted ? "hero" : "outline"} className="mt-8" asChild>
+                    <Link to={planHref(plan.id)}>
+                      {ar ? meta.ctaAr : meta.ctaEn}
+                      <ArrowRight className="h-4 w-4 rtl:rotate-180" />
+                    </Link>
+                  </Button>
+                </article>
+              );
+            })}
           </div>
         </section>
 
@@ -145,6 +133,14 @@ const Pricing = () => {
               </div>
             ))}
           </div>
+          {!isAuthenticated && (
+            <p className="mt-8 text-center text-sm text-muted-foreground">
+              {t("auth.hasAccount")}{" "}
+              <Link to="/login?next=/profile" className="text-primary font-medium hover:underline">
+                {t("nav.signIn")}
+              </Link>
+            </p>
+          )}
         </section>
       </main>
       <Footer />

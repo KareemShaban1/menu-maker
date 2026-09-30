@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
   ArrowLeft, Eye, Pencil,
@@ -18,12 +18,18 @@ import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import RealMenuDesign, { templateLayout } from "@/components/RealMenuDesign";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useAuth } from "@/contexts/AuthContext";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { toast } from "sonner";
+import { listMenusRequest } from "@/lib/api";
+import { publicListTemplatesRequest } from "@/lib/adminApi";
+import { canCreateMenu } from "@/lib/plans";
+import { getAuthErrorMessage } from "@/contexts/AuthContext";
 
 // Professional design configurations for each template
 interface TemplateDesign {
@@ -805,13 +811,60 @@ const MenuPreviewContent = ({ data, layout }: MenuPreviewContentProps) => {
 const Templates = () => {
   const { category } = useParams<{ category?: string }>();
   const { t } = useLanguage();
+  const navigate = useNavigate();
+  const { user, isAuthenticated } = useAuth();
   const [selectedCategory, setSelectedCategory] = useState(category || "restaurant");
   const [previewTemplate, setPreviewTemplate] = useState<{ category: string; id: number } | null>(null);
+  const [checkingPlan, setCheckingPlan] = useState(false);
+  const [activeKeys, setActiveKeys] = useState<Set<string> | null>(null);
 
-  const templates = templatesByCategory[selectedCategory as keyof typeof templatesByCategory] || [];
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const rows = await publicListTemplatesRequest();
+        if (cancelled || !rows.length) return;
+        setActiveKeys(new Set(rows.filter((r) => r.isActive).map((r) => `${r.category}:${r.localId}`)));
+      } catch {
+        // Keep static catalog if API is unavailable
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const allTemplates = templatesByCategory[selectedCategory as keyof typeof templatesByCategory] || [];
+  const templates =
+    activeKeys === null
+      ? allTemplates
+      : allTemplates.filter((tpl) => activeKeys.has(`${selectedCategory}:${tpl.id}`));
 
   const handlePreview = (templateId: number) => {
     setPreviewTemplate({ category: selectedCategory, id: templateId });
+  };
+
+  const handleEdit = async (templateId: number) => {
+    const path = `/builder/${selectedCategory}/${templateId}`;
+    if (!isAuthenticated) {
+      navigate(`/login?next=${encodeURIComponent(path)}`);
+      return;
+    }
+    if (!user) return;
+    setCheckingPlan(true);
+    try {
+      const menus = await listMenusRequest();
+      if (!canCreateMenu(user.plan, menus.length)) {
+        toast.error(t("builder.planLimitDesc"));
+        navigate("/profile#plans");
+        return;
+      }
+      navigate(path);
+    } catch (err) {
+      toast.error(getAuthErrorMessage(err, t("profile.menusLoadError")));
+    } finally {
+      setCheckingPlan(false);
+    }
   };
 
   const previewData = previewTemplate
@@ -914,11 +967,15 @@ const Templates = () => {
                         <Eye className="w-4 h-4" />
                         {t("templates.preview")}
                       </Button>
-                      <Button variant="hero" size="sm" className="flex-1" asChild>
-                        <Link to={`/builder/${selectedCategory}/${template.id}`}>
-                          <Pencil className="w-4 h-4" />
-                          {t("templates.edit")}
-                        </Link>
+                      <Button
+                        variant="hero"
+                        size="sm"
+                        className="flex-1"
+                        disabled={checkingPlan}
+                        onClick={() => void handleEdit(template.id)}
+                      >
+                        <Pencil className="w-4 h-4" />
+                        {t("templates.edit")}
                       </Button>
                     </div>
                   </div>

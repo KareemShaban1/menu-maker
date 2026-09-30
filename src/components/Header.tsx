@@ -1,17 +1,22 @@
 import { useState } from "react";
-import { Link, NavLink } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, Home, LayoutTemplate, BadgeDollarSign, Info, ArrowRight } from "lucide-react";
+import { Menu, X, Home, LayoutTemplate, BadgeDollarSign, Info, ArrowRight, LogOut, UserRound, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import BrandLogo from "@/components/BrandLogo";
-import { brand } from "@/lib/brand";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useAuth } from "@/contexts/AuthContext";
+import { useSiteSettings } from "@/contexts/SiteSettingsContext";
 import LanguageSwitcher from "./LanguageSwitcher";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { t } = useLanguage();
+  const { user, isAuthenticated, logout, loading } = useAuth();
+  const { settings } = useSiteSettings();
+  const navigate = useNavigate();
 
   const navLinks = [
     { name: t("nav.home"), href: "/", key: "home", icon: Home },
@@ -20,6 +25,13 @@ const Header = () => {
     { name: t("nav.about"), href: "/about", key: "about", icon: Info },
   ];
 
+  const handleLogout = () => {
+    logout();
+    setIsMenuOpen(false);
+    toast.success(t("auth.logoutSuccess"));
+    navigate("/");
+  };
+
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-background/85 backdrop-blur-xl border-b border-border/80 shadow-soft">
       <div className="container mx-auto px-4">
@@ -27,7 +39,7 @@ const Header = () => {
           <Link to="/" className="flex items-center gap-2.5 group">
             <BrandLogo className="h-10 w-10 shadow-soft transition-transform duration-300 group-hover:scale-105" />
             <span className="font-display text-xl font-bold text-foreground tracking-tight">
-              {brand.name}
+              {settings.brand.name}
             </span>
           </Link>
 
@@ -54,9 +66,32 @@ const Header = () => {
 
           <div className="hidden md:flex items-center gap-2">
             <LanguageSwitcher />
-            <Button variant="ghost" size="sm">
-              {t("nav.signIn")}
-            </Button>
+            {!loading && isAuthenticated ? (
+              <>
+                {user?.role === "super_admin" && (
+                  <Button variant="ghost" size="sm" asChild>
+                    <Link to="/admin">
+                      <Shield className="w-4 h-4" />
+                      Admin
+                    </Link>
+                  </Button>
+                )}
+                <Button variant="ghost" size="sm" asChild>
+                  <Link to="/profile" className="max-w-[12rem] truncate">
+                    <UserRound className="w-4 h-4" />
+                    <span className="truncate">{user?.name || user?.email}</span>
+                  </Link>
+                </Button>
+                <Button variant="ghost" size="sm" onClick={handleLogout}>
+                  <LogOut className="w-4 h-4" />
+                  {t("nav.signOut")}
+                </Button>
+              </>
+            ) : (
+              <Button variant="ghost" size="sm" asChild>
+                <Link to="/login">{t("nav.signIn")}</Link>
+              </Button>
+            )}
             <Button variant="hero" size="sm" asChild>
               <Link to="/templates">
                 {t("nav.getStarted")}
@@ -107,9 +142,34 @@ const Header = () => {
                 <div className="flex justify-center pb-2">
                   <LanguageSwitcher />
                 </div>
-                <Button variant="ghost" className="w-full">
-                  {t("nav.signIn")}
-                </Button>
+                {!loading && isAuthenticated ? (
+                  <>
+                    {user?.role === "super_admin" && (
+                      <Button variant="ghost" className="w-full" asChild>
+                        <Link to="/admin" onClick={() => setIsMenuOpen(false)}>
+                          <Shield className="w-4 h-4" />
+                          Admin
+                        </Link>
+                      </Button>
+                    )}
+                    <Button variant="ghost" className="w-full" asChild>
+                      <Link to="/profile" onClick={() => setIsMenuOpen(false)}>
+                        <UserRound className="w-4 h-4" />
+                        {t("nav.profile")}
+                      </Link>
+                    </Button>
+                    <Button variant="ghost" className="w-full" onClick={handleLogout}>
+                      <LogOut className="w-4 h-4" />
+                      {t("nav.signOut")}
+                    </Button>
+                  </>
+                ) : (
+                  <Button variant="ghost" className="w-full" asChild>
+                    <Link to="/login" onClick={() => setIsMenuOpen(false)}>
+                      {t("nav.signIn")}
+                    </Link>
+                  </Button>
+                )}
                 <Button variant="hero" className="w-full" asChild>
                   <Link to="/templates" onClick={() => setIsMenuOpen(false)}>
                     {t("nav.getStarted")}

@@ -1,42 +1,12 @@
 import { motion } from "framer-motion";
-import { Palette, Layers, QrCode, Globe, Smartphone, Zap } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useSiteSettings } from "@/contexts/SiteSettingsContext";
+import { resolveIcon } from "@/lib/iconMap";
 
 const Features = () => {
-  const { t } = useLanguage();
-
-  const features = [
-    {
-      icon: Palette,
-      titleKey: "feature.templates.title",
-      descKey: "feature.templates.desc",
-    },
-    {
-      icon: Layers,
-      titleKey: "feature.variants.title",
-      descKey: "feature.variants.desc",
-    },
-    {
-      icon: QrCode,
-      titleKey: "feature.qr.title",
-      descKey: "feature.qr.desc",
-    },
-    {
-      icon: Globe,
-      titleKey: "feature.bilingual.title",
-      descKey: "feature.bilingual.desc",
-    },
-    {
-      icon: Smartphone,
-      titleKey: "feature.mobile.title",
-      descKey: "feature.mobile.desc",
-    },
-    {
-      icon: Zap,
-      titleKey: "feature.updates.title",
-      descKey: "feature.updates.desc",
-    },
-  ];
+  const { language } = useLanguage();
+  const { settings } = useSiteSettings();
+  const copy = language === "ar" ? settings.home.ar : settings.home.en;
 
   return (
     <section className="py-24 relative overflow-hidden">
@@ -51,37 +21,35 @@ const Features = () => {
           className="text-center mb-16"
         >
           <h2 className="font-display text-3xl md:text-5xl font-bold text-foreground mb-4">
-            {t("features.title")}
+            {copy.featuresTitle}
           </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            {t("features.subtitle")}
-          </p>
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">{copy.featuresSubtitle}</p>
         </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {features.map((feature, index) => (
-            <motion.div
-              key={feature.titleKey}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: index * 0.08 }}
-              className="group h-full"
-            >
-              <div className="h-full p-6 rounded-2xl bg-card border border-border shadow-soft hover:shadow-card hover:-translate-y-1 transition-all duration-300">
-                <div className="w-12 h-12 rounded-xl bg-primary/10 ring-1 ring-primary/15 flex items-center justify-center mb-4 group-hover:bg-gradient-hero group-hover:ring-0 transition-all duration-300">
-                  <feature.icon className="w-6 h-6 text-primary group-hover:text-primary-foreground transition-colors" />
+          {copy.features.map((feature, index) => {
+            const Icon = resolveIcon(settings.icons.features[index]);
+            return (
+              <motion.div
+                key={`${feature.title}-${index}`}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: index * 0.08 }}
+                className="group h-full"
+              >
+                <div className="h-full p-6 rounded-2xl bg-card border border-border shadow-soft hover:shadow-card hover:-translate-y-1 transition-all duration-300">
+                  <div className="w-12 h-12 rounded-xl bg-primary/10 ring-1 ring-primary/15 flex items-center justify-center mb-4 group-hover:bg-gradient-hero group-hover:ring-0 transition-all duration-300">
+                    <Icon className="w-6 h-6 text-primary group-hover:text-primary-foreground transition-colors" />
+                  </div>
+                  <h3 className="font-display text-lg font-semibold text-foreground mb-2">
+                    {feature.title}
+                  </h3>
+                  <p className="text-muted-foreground text-sm leading-relaxed">{feature.desc}</p>
                 </div>
-
-                <h3 className="font-display text-lg font-semibold text-foreground mb-2">
-                  {t(feature.titleKey)}
-                </h3>
-                <p className="text-muted-foreground text-sm leading-relaxed">
-                  {t(feature.descKey)}
-                </p>
-              </div>
-            </motion.div>
-          ))}
+              </motion.div>
+            );
+          })}
         </div>
       </div>
     </section>

@@ -1,0 +1,142 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum Plan {
+  free
+  restaurant
+  business
+}
+
+enum Role {
+  user
+  super_admin
+}
+
+enum SubscriptionStatus {
+  active
+  trial
+  past_due
+  canceled
+  expired
+}
+
+model User {
+  id            String         @id @default(cuid())
+  email         String         @unique @db.VarChar(255)
+  passwordHash  String
+  name          String?        @db.VarChar(120)
+  plan          Plan           @default(free)
+  role          Role           @default(user)
+  isActive      Boolean        @default(true)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  menus         Menu[]
+  subscriptions Subscription[]
+}
+
+model Menu {
+  id               String   @id @default(cuid())
+  /// Public share segment; unique when set.
+  slug             String?  @unique @db.VarChar(80)
+  ownerId          String
+  owner            User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  /// Display name (denormalized from payload for listing)
+  name             String   @db.VarChar(200)
+  nameAr           String?  @db.VarChar(200)
+  /// Full nested MenuPayload (categories, theme, designElements, styles, …)
+  data             Json
+  isPublished      Boolean  @default(true)
+  currency         String   @default("EGP") @db.VarChar(8)
+  language         String   @default("en") @db.VarChar(8)
+  pages            Int      @default(1)
+  templateCategory String?  @db.VarChar(32)
+  templateId       Int?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@index([ownerId])
+  @@index([isPublished])
+}
+
+model Upload {
+  id        String   @id @default(cuid())
+  ownerId   String
+  filename  String   @db.VarChar(255)
+  mimeType  String   @db.VarChar(100)
+  sizeBytes Int
+  url       String   @db.VarChar(500)
+  createdAt DateTime @default(now())
+
+  @@index([ownerId])
+}
+
+/// Editable plan catalog (limits, pricing, features). Keys match Plan enum.
+model PlanConfig {
+  id           String   @id @default(cuid())
+  key          Plan     @unique
+  nameEn       String   @db.VarChar(80)
+  nameAr       String   @db.VarChar(80)
+  priceMonthly Int      @default(0)
+  /// null = unlimited menus
+  maxMenus     Int?
+  featuresEn   Json
+  featuresAr   Json
+  isActive     Boolean  @default(true)
+  sortOrder    Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Subscription {
+  id        String             @id @default(cuid())
+  userId    String
+  user      User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plan      Plan
+  status    SubscriptionStatus @default(active)
+  startsAt  DateTime           @default(now())
+  endsAt    DateTime?
+  notes     String?            @db.VarChar(500)
+  createdAt DateTime           @default(now())
+  updatedAt DateTime           @updatedAt
+
+  @@index([userId])
+  @@index([status])
+  @@index([plan])
+}
+
+/// Singleton site branding + landing content (JSON document).
+model SiteSettings {
+  id        String   @id @default("default")
+  data      Json
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+}
+
+/// Admin-managed template catalog. localId matches frontend templateId within category.
+model MenuTemplate {
+  id          String   @id @default(cuid())
+  category    String   @db.VarChar(32)
+  localId     Int
+  name        String   @db.VarChar(120)
+  nameAr      String?  @db.VarChar(120)
+  style       String   @db.VarChar(120)
+  styleAr     String?  @db.VarChar(120)
+  layoutKey   String   @db.VarChar(64)
+  gradient    String   @db.Text
+  accentColor String   @db.VarChar(32)
+  iconKey     String   @db.VarChar(64)
+  pattern     String?  @db.Text
+  isActive    Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([category, localId])
+  @@index([category, isActive])
+}

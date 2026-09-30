@@ -5,7 +5,7 @@ import {
 	ArrowLeft, Plus, Trash2, Save, Eye, GripVertical, X, Upload, Download,
 	ChevronLeft, ChevronRight,
 	Building2, ExternalLink, Palette, Settings, Type, Layout, Move,
-	Image, Minus, Square, Circle, SeparatorHorizontal, Type as TypeIcon, Sparkles
+	Image, Minus, Square, Circle, SeparatorHorizontal, Type as TypeIcon, Sparkles, Loader2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -36,12 +36,14 @@ import {
 	verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { toast } from "@/hooks/use-toast";
-import { saveMenu, generateMenuId, MenuData, MenuTheme, DesignElement, DesignElementType, type TextStyle } from "@/lib/menuStorage";
+import { saveMenu, MenuData, MenuTheme, DesignElement, DesignElementType, type TextStyle } from "@/lib/menuStorage";
 import RealMenuDesign, { templateLayout, type MenuTextChange, type MenuTextTarget } from "@/components/RealMenuDesign";
 import TextStyleFields from "@/components/TextStyleFields";
 import { SortableCategory } from "@/components/SortableCategory";
 import { SortableItem } from "@/components/SortableItem";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useAuth } from "@/contexts/AuthContext";
+import { ApiError, createMenuRequest, updateMenuRequest } from "@/lib/api";
 
 interface ItemSize {
 	name: string;
@@ -856,6 +858,14 @@ const Builder = () => {
 	const { category, templateId } = useParams();
 	const navigate = useNavigate();
 	const { t } = useLanguage();
+	const { isAuthenticated, loading: authLoading } = useAuth();
+	const [saving, setSaving] = useState(false);
+
+	useEffect(() => {
+		if (!authLoading && !isAuthenticated) {
+			navigate(`/login?next=${encodeURIComponent(`/builder/${category}/${templateId}`)}`, { replace: true });
+		}
+	}, [authLoading, isAuthenticated, navigate, category, templateId]);
 
 	// Load template-specific data
 	const templateData = getTemplateData(category, templateId);
@@ -1559,32 +1569,79 @@ const Builder = () => {
 							size="sm"
 							className="bg-primary hover:bg-primary/90 text-primary-foreground"
 							aria-label={t("builder.saveMenu")}
-							onClick={() => {
-								const menuId = generateMenuId();
-								const menuData: MenuData = {
-									id: menuId,
+							disabled={saving || authLoading || !isAuthenticated}
+							onClick={async () => {
+								if (!isAuthenticated) {
+									navigate(`/login?next=${encodeURIComponent(`/builder/${category}/${templateId}`)}`);
+									return;
+								}
+								setSaving(true);
+								const payload = {
 									name: menuName,
+									nameAr: menuNameAr || undefined,
 									categories,
 									designElements: designElements.length > 0 ? designElements : undefined,
 									vendorName: vendorName || undefined,
 									vendorLogo: vendorLogo || undefined,
-									theme: theme,
+									theme,
 									pages: pageCount,
 									currency,
 									language: menuLanguage,
-									nameAr: menuNameAr,
 									titleStyle,
 									vendorStyle,
+									isPublished: true,
+									templateCategory: category || null,
+									templateId: templateId ? Number(templateId) : null,
 								};
-								saveMenu(menuData);
-								setSavedMenuId(menuId);
-								toast({
-									title: t("builder.menuSaved"),
-									description: `${t("builder.viewMenu")} ${t("builder.viewMenu")}`,
-								});
+								try {
+									const saved = savedMenuId
+										? await updateMenuRequest(savedMenuId, payload)
+										: await createMenuRequest(payload);
+
+									const menuData: MenuData = {
+										id: saved.id,
+										name: saved.name,
+										nameAr: saved.nameAr,
+										categories: (saved.categories as MenuData["categories"]) || categories,
+										designElements: (saved.designElements as MenuData["designElements"]) || payload.designElements,
+										vendorName: saved.vendorName,
+										vendorLogo: saved.vendorLogo,
+										theme: (saved.theme as MenuData["theme"]) || theme,
+										pages: saved.pages ?? pageCount,
+										currency: saved.currency ?? currency,
+										language: saved.language ?? menuLanguage,
+										titleStyle: (saved.titleStyle as MenuData["titleStyle"]) || titleStyle,
+										vendorStyle: (saved.vendorStyle as MenuData["vendorStyle"]) || vendorStyle,
+										createdAt: saved.createdAt,
+										updatedAt: saved.updatedAt,
+									};
+									saveMenu(menuData);
+									setSavedMenuId(saved.id);
+									toast({
+										title: t("builder.menuSaved"),
+										description: t("builder.viewMenu"),
+									});
+								} catch (err) {
+									if (err instanceof ApiError && err.code === "PLAN_LIMIT") {
+										toast({
+											title: t("builder.planLimitTitle"),
+											description: t("builder.planLimitDesc"),
+											variant: "destructive",
+										});
+										navigate("/profile#plans");
+									} else {
+										toast({
+											title: t("builder.saveError"),
+											description: err instanceof Error ? err.message : t("builder.saveError"),
+											variant: "destructive",
+										});
+									}
+								} finally {
+									setSaving(false);
+								}
 							}}
 						>
-							<Save className="w-4 h-4" />
+							{saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
 							<span className="hidden sm:inline">{t("builder.saveMenu")}</span>
 						</Button>
 						{savedMenuId && (

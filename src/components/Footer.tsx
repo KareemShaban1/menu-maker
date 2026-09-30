@@ -1,11 +1,14 @@
 import { Link } from "react-router-dom";
 import { Facebook, Instagram, Twitter } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useSiteSettings } from "@/contexts/SiteSettingsContext";
 import BrandLogo from "@/components/BrandLogo";
-import { brand } from "@/lib/brand";
 
 const Footer = () => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const { settings } = useSiteSettings();
+  const footerDesc =
+    language === "ar" ? settings.home.ar.footerDescription : settings.home.en.footerDescription;
 
   const socials = [
     { href: "#", label: "Facebook", icon: Facebook },
@@ -21,11 +24,11 @@ const Footer = () => {
             <Link to="/" className="flex items-center gap-2.5 mb-4 group">
               <BrandLogo className="h-10 w-10" />
               <span className="font-display text-xl font-bold">
-                {brand.name}
+                {settings.brand.name}
               </span>
             </Link>
             <p className="text-primary-foreground/70 text-sm mb-5 leading-relaxed">
-              {t("footer.description")}
+              {footerDesc}
             </p>
             <div className="flex gap-2">
               {socials.map((social) => (
@@ -73,7 +76,7 @@ const Footer = () => {
         </div>
 
         <div className="pt-8 border-t border-primary-foreground/10 text-center text-sm text-primary-foreground/50">
-          <p>© {new Date().getFullYear()} {brand.name}. {t("footer.rights")}</p>
+          <p>© {new Date().getFullYear()} {settings.brand.name}. {t("footer.rights")}</p>
         </div>
       </div>
     </footer>

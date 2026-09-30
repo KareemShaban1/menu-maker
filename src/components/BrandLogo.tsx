@@ -1,15 +1,29 @@
 import { useId } from "react";
+import { useSiteSettings } from "@/contexts/SiteSettingsContext";
+import { cn } from "@/lib/utils";
 
 const BrandLogo = ({ className = "h-10 w-10" }: { className?: string }) => {
   const rawId = useId().replace(/:/g, "");
   const gradientId = `carta-${rawId}`;
+  const { settings } = useSiteSettings();
+  const logoUrl = settings.brand.logoUrl;
+
+  if (logoUrl) {
+    return (
+      <img
+        src={logoUrl}
+        alt={settings.brand.name}
+        className={cn("object-contain rounded-lg", className)}
+      />
+    );
+  }
 
   return (
     <svg viewBox="0 0 32 32" className={className} aria-hidden="true">
       <defs>
         <linearGradient id={gradientId} x1="4" y1="2" x2="28" y2="30" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#e08a45" />
-          <stop offset="1" stopColor="#e2b15a" />
+          <stop stopColor={settings.theme.primary} />
+          <stop offset="1" stopColor={settings.theme.accent} />
         </linearGradient>
       </defs>
       <rect width="32" height="32" rx="8" fill={`url(#${gradientId})`} />

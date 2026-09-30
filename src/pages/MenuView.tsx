@@ -7,6 +7,7 @@ import RealMenuDesign from "@/components/RealMenuDesign";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
 import { brand } from "@/lib/brand";
+import { getPublicMenuRequest } from "@/lib/api";
 
 interface ItemSize {
   name: string;
@@ -245,17 +246,61 @@ const MenuView = () => {
   });
 
   useEffect(() => {
-    if (menuId) {
-      const data = getMenuData(menuId);
-      setMenuData(data);
-      if (data?.language === "ar" || data?.language === "en") {
-        setLanguage(data.language);
+    if (!menuId) return;
+
+    let cancelled = false;
+    (async () => {
+      const local = getMenu(menuId);
+      if (local) {
+        if (!cancelled) {
+          setMenuData(local);
+          if (local.language === "ar" || local.language === "en") {
+            setLanguage(local.language);
+          }
+          setExpandedCategories(new Set(local.categories.map((cat) => cat.id)));
+        }
       }
-      // Expand all categories by default
-      if (data) {
-        setExpandedCategories(new Set(data.categories.map((cat) => cat.id)));
+
+      try {
+        const remote = await getPublicMenuRequest(menuId);
+        if (cancelled) return;
+        const mapped: MenuData = {
+          id: remote.id,
+          name: remote.name,
+          nameAr: remote.nameAr,
+          titleStyle: remote.titleStyle as TextStyle | undefined,
+          vendorStyle: remote.vendorStyle as TextStyle | undefined,
+          categories: (remote.categories as MenuCategory[]) || [],
+          designElements: remote.designElements as DesignElement[] | undefined,
+          vendorName: remote.vendorName,
+          vendorLogo: remote.vendorLogo,
+          theme: remote.theme as MenuTheme | undefined,
+          pages: remote.pages,
+          currency: remote.currency,
+          language: remote.language,
+        };
+        setMenuData(mapped);
+        if (mapped.language === "ar" || mapped.language === "en") {
+          setLanguage(mapped.language);
+        }
+        setExpandedCategories(new Set(mapped.categories.map((cat) => cat.id)));
+      } catch {
+        if (!local && !cancelled) {
+          const fallback = getMenuData(menuId);
+          setMenuData(fallback);
+          if (fallback?.language === "ar" || fallback?.language === "en") {
+            setLanguage(fallback.language);
+          }
+          if (fallback) {
+            setExpandedCategories(new Set(fallback.categories.map((cat) => cat.id)));
+          }
+        }
       }
-    }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
   }, [menuId]);
 
   // Update HTML lang attribute and save language preference
