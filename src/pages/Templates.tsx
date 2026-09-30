@@ -872,12 +872,12 @@ const Templates = () => {
     : null;
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background paper-grain">
       <Header />
       <main className="pt-24 pb-16">
         <div className="container mx-auto px-4">
           {/* Back Link */}
-          <Link to="/" className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground mb-8 transition-colors">
+          <Link to="/" className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground mb-8 transition-colors label-shout text-xs">
             <ArrowLeft className="w-4 h-4" />
             {t("nav.home")}
           </Link>
@@ -888,10 +888,11 @@ const Templates = () => {
             animate={{ opacity: 1, y: 0 }}
             className="mb-12"
           >
-            <h1 className="font-display text-4xl md:text-5xl font-bold text-foreground mb-4">
+            <p className="overline-label text-primary mb-3">Studio</p>
+            <h1 className="font-display text-5xl md:text-6xl tracking-[0.04em] text-foreground mb-4">
               {category ? `${t(categoryKeys[category] || "category.restaurant")} ${t("nav.templates")}` : t("nav.templates")}
             </h1>
-            <p className="text-lg text-muted-foreground">
+            <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
               {t("templates.title")}
             </p>
           </motion.div>
@@ -904,10 +905,10 @@ const Templates = () => {
                 <button
                   key={key}
                   onClick={() => setSelectedCategory(key)}
-                  className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
+                  className={`inline-flex items-center gap-2 px-4 py-2 rounded-md text-xs font-bold uppercase tracking-[0.06em] border-2 border-foreground transition-all duration-150 ${
                     selectedCategory === key
-                      ? "bg-primary text-primary-foreground shadow-soft"
-                      : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
+                      ? "bg-foreground text-primary-foreground shadow-offset"
+                      : "bg-card text-foreground hover:bg-muted shadow-offset"
                   }`}
                 >
                   <CategoryIcon className="w-4 h-4" />
@@ -918,7 +919,7 @@ const Templates = () => {
           </div>
 
           {/* Templates Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             {templates.map((template, index) => {
               const sample = getTemplatePreview(selectedCategory, template.id);
               return (
@@ -929,8 +930,8 @@ const Templates = () => {
                 transition={{ delay: index * 0.1 }}
                 className="group"
               >
-                <div className="bg-card rounded-2xl border border-border overflow-hidden shadow-soft hover:shadow-card hover:-translate-y-1 transition-all duration-300">
-                  <div className="aspect-[4/3] relative overflow-hidden">
+                <div className="bg-card rounded-xl border-2 border-foreground overflow-hidden shadow-offset hover:-translate-y-1 hover:shadow-offset-lg transition-all duration-200">
+                  <div className="aspect-[4/3] relative overflow-hidden border-b-2 border-foreground">
                     <div className="absolute top-0 left-0 h-[100%] w-[250%] origin-top-left scale-[0.4] pointer-events-none">
                       <RealMenuDesign
                         compact
@@ -939,21 +940,21 @@ const Templates = () => {
                         categories={sample.categories}
                       />
                     </div>
-                    <div className="absolute bottom-3 right-3 z-10 w-8 h-8 rounded-full bg-white/95 shadow-soft flex items-center justify-center">
-                      <template.icon className="w-4 h-4" style={{ color: template.accentColor }} strokeWidth={2} />
+                    <div className="absolute bottom-3 right-3 z-10 w-8 h-8 rounded-md border-2 border-foreground bg-accent shadow-offset flex items-center justify-center">
+                      <template.icon className="w-4 h-4 text-foreground" strokeWidth={2.5} />
                     </div>
                   </div>
 
                   <div className="p-5 bg-card">
                     <div className="flex items-start justify-between gap-2 mb-4">
                       <div className="flex-1">
-                        <h3 className="font-display text-lg font-semibold text-foreground mb-1">
+                        <h3 className="font-display text-xl tracking-[0.04em] text-foreground mb-1">
                           {template.name}
                         </h3>
                         <p className="text-sm text-muted-foreground">{template.style}</p>
                       </div>
                       <div 
-                        className="w-2.5 h-2.5 rounded-full flex-shrink-0 mt-2"
+                        className="w-3 h-3 rounded-sm flex-shrink-0 mt-2 border-2 border-foreground"
                         style={{ backgroundColor: template.accentColor }}
                       />
                     </div>
@@ -990,12 +991,12 @@ const Templates = () => {
 
       {/* Preview Dialog */}
       <Dialog open={!!previewTemplate} onOpenChange={(open) => !open && setPreviewTemplate(null)}>
-        <DialogContent className="max-w-5xl max-h-[90vh] overflow-hidden p-0">
-          <DialogHeader className="px-6 pt-6 pb-4 border-b border-border">
-            <DialogTitle className="text-2xl font-display flex items-center gap-3">
+        <DialogContent className="max-w-5xl max-h-[90vh] overflow-hidden p-0 border-2 border-foreground shadow-offset-lg rounded-xl">
+          <DialogHeader className="px-6 pt-6 pb-4 border-b-2 border-foreground">
+            <DialogTitle className="text-2xl font-display tracking-[0.04em] flex items-center gap-3">
               <span>{previewData?.name}</span>
               <span className="text-sm font-normal text-muted-foreground">—</span>
-              <span className="text-sm font-normal text-muted-foreground">{t("templates.preview")}</span>
+              <span className="text-sm font-normal text-muted-foreground label-shout">{t("templates.preview")}</span>
             </DialogTitle>
           </DialogHeader>
           <div className="overflow-y-auto max-h-[calc(90vh-80px)]">

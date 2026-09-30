@@ -14,33 +14,33 @@ const About = () => {
   const body = copy.body.replace(/\{brand\}/g, settings.brand.name);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background paper-grain">
       <Header />
       <main className="pt-28 pb-20">
         <section className="container mx-auto px-4">
           <div className="mx-auto max-w-3xl text-center">
-            <p className="text-sm font-semibold tracking-widest text-primary uppercase">
+            <p className="overline-label text-primary">
               {copy.eyebrow}
             </p>
-            <h1 className="mt-3 font-display text-4xl font-bold text-foreground md:text-5xl">
+            <h1 className="mt-3 font-display text-5xl md:text-6xl tracking-[0.04em] text-foreground">
               {copy.title}
             </h1>
-            <p className="mt-4 text-lg leading-relaxed text-muted-foreground">{body}</p>
+            <p className="mt-4 text-base md:text-lg leading-relaxed text-muted-foreground">{body}</p>
           </div>
         </section>
 
-        <section className="container mx-auto mt-16 grid max-w-5xl gap-6 px-4 md:grid-cols-3">
+        <section className="container mx-auto mt-16 grid max-w-5xl gap-5 px-4 md:grid-cols-3">
           {copy.steps.map((step, index) => (
-            <article key={step.title} className="rounded-2xl border border-border bg-card p-6 shadow-soft">
-              <p className="text-sm font-semibold text-primary">0{index + 1}</p>
-              <h2 className="mt-3 font-display text-xl font-semibold text-foreground">{step.title}</h2>
+            <article key={step.title} className="rounded-xl border-2 border-foreground bg-card p-6 shadow-offset">
+              <span className="chip-retro !py-1 !px-3 !text-xs">0{index + 1}</span>
+              <h2 className="mt-4 font-display text-2xl tracking-[0.04em] text-foreground">{step.title}</h2>
               <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{step.body}</p>
             </article>
           ))}
         </section>
 
         <section className="container mx-auto mt-16 max-w-5xl px-4">
-          <h2 className="font-display text-3xl font-bold text-foreground text-center">
+          <h2 className="font-display text-4xl md:text-5xl tracking-[0.04em] text-foreground text-center">
             {copy.audiencesTitle}
           </h2>
           <div className="mt-8 grid gap-4 sm:grid-cols-2">
@@ -49,13 +49,13 @@ const About = () => {
               return (
                 <article
                   key={item.title}
-                  className="flex gap-4 rounded-2xl border border-border bg-card p-5 shadow-soft"
+                  className="flex gap-4 rounded-xl border-2 border-foreground bg-card p-5 shadow-offset"
                 >
-                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border-2 border-foreground bg-accent text-foreground">
                     <Icon className="h-5 w-5" />
                   </div>
                   <div>
-                    <h3 className="font-display text-lg font-semibold text-foreground">{item.title}</h3>
+                    <h3 className="font-display text-xl tracking-[0.04em] text-foreground">{item.title}</h3>
                     <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{item.body}</p>
                   </div>
                 </article>
@@ -65,9 +65,9 @@ const About = () => {
         </section>
 
         <section className="container mx-auto mt-16 max-w-3xl px-4 text-center">
-          <div className="rounded-3xl border border-border bg-card px-6 py-10 shadow-soft">
-            <h2 className="font-display text-3xl font-bold text-foreground">{copy.ctaTitle}</h2>
-            <p className="mx-auto mt-3 max-w-xl text-muted-foreground">{copy.ctaBody}</p>
+          <div className="rounded-xl border-2 border-foreground bg-card px-6 py-10 shadow-offset-lg">
+            <h2 className="font-display text-4xl tracking-[0.04em] text-foreground">{copy.ctaTitle}</h2>
+            <p className="mx-auto mt-3 max-w-xl text-muted-foreground leading-relaxed">{copy.ctaBody}</p>
             <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
               <Button variant="hero" asChild>
                 <Link to="/templates">

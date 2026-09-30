@@ -33,12 +33,12 @@ const Header = () => {
   };
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-background/85 backdrop-blur-xl border-b border-border/80 shadow-soft">
+    <header className="fixed top-0 left-0 right-0 z-50 border-b-2 border-foreground bg-card">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16 md:h-20">
           <Link to="/" className="flex items-center gap-2.5 group">
-            <BrandLogo className="h-10 w-10 shadow-soft transition-transform duration-300 group-hover:scale-105" />
-            <span className="font-display text-xl font-bold text-foreground tracking-tight">
+            <BrandLogo className="h-10 w-10 border-2 border-foreground shadow-offset transition-transform duration-200 group-hover:-translate-y-0.5" />
+            <span className="font-display text-2xl md:text-3xl text-foreground tracking-[0.04em] uppercase">
               {settings.brand.name}
             </span>
           </Link>
@@ -51,14 +51,14 @@ const Header = () => {
                 end={link.href === "/"}
                 className={({ isActive }) =>
                   cn(
-                    "inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-200",
+                    "inline-flex items-center gap-1.5 px-3 py-2 rounded-md text-xs font-bold uppercase tracking-[0.06em] border-2 transition-colors duration-150",
                     isActive
-                      ? "bg-secondary text-foreground"
-                      : "text-muted-foreground hover:text-foreground hover:bg-secondary/70"
+                      ? "border-foreground bg-foreground text-primary-foreground"
+                      : "border-transparent text-foreground hover:border-foreground hover:bg-muted"
                   )
                 }
               >
-                <link.icon className="w-4 h-4" />
+                <link.icon className="w-3.5 h-3.5" />
                 {link.name}
               </NavLink>
             ))}
@@ -102,10 +102,10 @@ const Header = () => {
 
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="md:hidden p-2 rounded-lg text-foreground hover:bg-secondary transition-colors"
+            className="md:hidden p-2 rounded-md border-2 border-foreground bg-card text-foreground shadow-offset hover:bg-muted transition-colors"
             aria-label={isMenuOpen ? "Close menu" : "Open menu"}
           >
-            {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            {isMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
         </div>
       </div>
@@ -116,9 +116,9 @@ const Header = () => {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
-            className="md:hidden overflow-hidden bg-background border-b border-border"
+            className="md:hidden overflow-hidden bg-card border-b-2 border-foreground"
           >
-            <nav className="container mx-auto px-4 py-4 flex flex-col gap-1">
+            <nav className="container mx-auto px-4 py-4 flex flex-col gap-2">
               {navLinks.map((link) => (
                 <NavLink
                   key={link.key}
@@ -126,10 +126,10 @@ const Header = () => {
                   end={link.href === "/"}
                   className={({ isActive }) =>
                     cn(
-                      "inline-flex items-center gap-3 rounded-xl px-3 py-3 font-medium transition-colors",
+                      "inline-flex items-center gap-3 rounded-md px-3 py-3 text-sm font-bold uppercase tracking-[0.06em] border-2 transition-colors",
                       isActive
-                        ? "bg-secondary text-foreground"
-                        : "text-muted-foreground hover:text-foreground hover:bg-secondary/70"
+                        ? "border-foreground bg-foreground text-primary-foreground"
+                        : "border-transparent text-foreground hover:border-foreground hover:bg-muted"
                     )
                   }
                   onClick={() => setIsMenuOpen(false)}
@@ -138,7 +138,7 @@ const Header = () => {
                   {link.name}
                 </NavLink>
               ))}
-              <div className="flex flex-col gap-2 pt-4 mt-2 border-t border-border">
+              <div className="flex flex-col gap-2 pt-4 mt-2 border-t-2 border-foreground">
                 <div className="flex justify-center pb-2">
                   <LanguageSwitcher />
                 </div>

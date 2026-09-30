@@ -52,16 +52,9 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="min-h-screen flex flex-col bg-background paper-grain">
       <Header />
       <main className="flex-1 pt-24 pb-16 relative overflow-hidden">
-        <div
-          className="pointer-events-none absolute inset-0 opacity-70"
-          style={{
-            background:
-              "radial-gradient(ellipse 80% 50% at 90% 0%, hsl(20 60% 50% / 0.12), transparent 55%), radial-gradient(ellipse 60% 40% at 10% 30%, hsl(38 80% 55% / 0.14), transparent 50%)",
-          }}
-        />
         <div className="container relative mx-auto px-4 flex justify-center">
           <motion.div
             initial={{ opacity: 0, y: 16 }}
@@ -71,9 +64,9 @@ const Register = () => {
           >
             <div className="mb-8 text-center">
               <div className="inline-flex items-center justify-center mb-4">
-                <BrandLogo className="h-12 w-12 shadow-soft" />
+                <BrandLogo className="h-12 w-12 border-2 border-foreground shadow-offset" />
               </div>
-              <h1 className="font-display text-3xl md:text-4xl font-bold text-foreground tracking-tight">
+              <h1 className="font-display text-4xl md:text-5xl text-foreground tracking-[0.04em]">
                 {t("auth.registerTitle")}
               </h1>
               <p className="mt-2 text-muted-foreground">{t("auth.registerSubtitle")}</p>
@@ -81,7 +74,7 @@ const Register = () => {
 
             <form
               onSubmit={onSubmit}
-              className="rounded-2xl border border-border/80 bg-card/90 backdrop-blur-sm p-6 md:p-8 shadow-soft space-y-5"
+              className="rounded-xl border-2 border-foreground bg-card p-6 md:p-8 shadow-offset-lg space-y-5"
             >
               <div className="space-y-2">
                 <Label htmlFor="name">{t("auth.name")}</Label>

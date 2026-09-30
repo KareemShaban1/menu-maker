@@ -14,8 +14,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        display: ["var(--font-display)", "Playfair Display", "serif"],
-        sans: ["var(--font-sans)", "Inter", "sans-serif"],
+        display: ["var(--font-display)", "Bebas Neue", "Cairo", "sans-serif"],
+        sans: ["var(--font-sans)", "Space Grotesk", "Cairo", "sans-serif"],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -80,9 +80,17 @@ export default {
         },
       },
       borderRadius: {
-        lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)",
+        lg: "12px",
+        md: "8px",
+        sm: "4px",
+        xl: "16px",
+      },
+      boxShadow: {
+        soft: "var(--shadow-soft)",
+        card: "var(--shadow-card)",
+        glow: "var(--shadow-glow)",
+        offset: "3px 3px 0 hsl(var(--foreground))",
+        "offset-lg": "5px 5px 0 hsl(var(--foreground))",
       },
       keyframes: {
         "accordion-down": {

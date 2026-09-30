@@ -14,19 +14,19 @@ const LanguageSwitcher = () => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="sm" className="gap-2 bg-card">
-          <Languages className="w-4 h-4 text-primary" />
+        <Button variant="outline" size="sm" className="gap-2">
+          <Languages className="w-4 h-4" />
           <span>{language === "en" ? "EN" : "عربي"}</span>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="min-w-[10rem]">
-        <DropdownMenuItem onClick={() => setLanguage("en")} className="gap-2">
+      <DropdownMenuContent align="end" className="min-w-[10rem] border-2 border-foreground shadow-offset rounded-md">
+        <DropdownMenuItem onClick={() => setLanguage("en")} className="gap-2 font-bold uppercase tracking-[0.04em]">
           <Check className={`w-4 h-4 ${language === "en" ? "opacity-100" : "opacity-0"}`} />
-          <span className={language === "en" ? "font-semibold" : ""}>English</span>
+          <span>English</span>
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setLanguage("ar")} className="gap-2">
+        <DropdownMenuItem onClick={() => setLanguage("ar")} className="gap-2 font-bold uppercase tracking-[0.04em]">
           <Check className={`w-4 h-4 ${language === "ar" ? "opacity-100" : "opacity-0"}`} />
-          <span className={language === "ar" ? "font-semibold" : ""}>العربية</span>
+          <span>العربية</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

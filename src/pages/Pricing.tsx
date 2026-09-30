@@ -63,53 +63,64 @@ const Pricing = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background paper-grain">
       <Header />
       <main className="pt-28 pb-20">
         <section className="container mx-auto px-4">
           <div className="mx-auto max-w-2xl text-center">
-            <p className="text-sm font-semibold tracking-widest text-primary uppercase">
+            <p className="overline-label text-primary">
               {ar ? "الأسعار" : "Pricing"}
             </p>
-            <h1 className="mt-3 font-display text-4xl font-bold text-foreground md:text-5xl">
+            <h1 className="mt-3 font-display text-5xl md:text-6xl tracking-[0.04em] text-foreground">
               {ar ? "قائمة رقمية بسعر واضح" : "A digital menu with a clear price"}
             </h1>
-            <p className="mt-4 text-lg text-muted-foreground">
+            <p className="mt-4 text-base md:text-lg text-muted-foreground leading-relaxed">
               {ar
                 ? "ابدأ مجاناً بقائمة واحدة. رقِّ عندما تحتاج أكثر من فرع أو أكثر من تصميم."
                 : "Start free with one menu. Move up when you need more branches or more designs."}
             </p>
           </div>
 
-          <div className="mx-auto mt-12 grid max-w-5xl gap-6 md:grid-cols-3">
+          <div className="mx-auto mt-12 grid max-w-5xl gap-5 md:grid-cols-3">
             {PLANS.map((plan) => {
               const meta = planMeta[plan.id];
               return (
                 <article
                   key={plan.id}
-                  className={`flex flex-col rounded-2xl border p-6 shadow-soft ${meta.highlighted ? "border-primary bg-card ring-2 ring-primary/30" : "border-border bg-card"}`}
+                  className={`flex flex-col rounded-xl border-2 border-foreground p-6 shadow-offset ${
+                    meta.highlighted ? "bg-primary text-primary-foreground" : "bg-card text-foreground"
+                  }`}
                 >
-                  <h2 className="font-display text-xl font-semibold text-foreground">
+                  {meta.highlighted && (
+                    <span className="chip-retro !bg-accent !text-foreground self-start mb-3 !py-1 !px-3 !text-xs">
+                      {ar ? "الأكثر اختياراً" : "Most popular"}
+                    </span>
+                  )}
+                  <h2 className="font-display text-2xl tracking-[0.04em]">
                     {ar ? plan.nameAr : plan.nameEn}
                   </h2>
-                  <p className="mt-2 text-sm text-muted-foreground">
+                  <p className={`mt-2 text-sm leading-relaxed ${meta.highlighted ? "text-primary-foreground/85" : "text-muted-foreground"}`}>
                     {ar ? meta.detailAr : meta.detailEn}
                   </p>
-                  <p className="mt-6 font-display text-4xl font-bold text-foreground">
+                  <p className="mt-6 font-display text-5xl tracking-[0.04em]">
                     {ar ? plan.priceAr : plan.priceEn}
-                    <span className="ms-2 text-sm font-medium text-muted-foreground">
+                    <span className={`ms-2 text-sm font-bold uppercase tracking-[0.06em] ${meta.highlighted ? "text-primary-foreground/80" : "text-muted-foreground"}`}>
                       {ar ? plan.periodAr : plan.periodEn}
                     </span>
                   </p>
                   <ul className="mt-6 flex-1 space-y-3">
                     {(ar ? plan.featuresAr : plan.featuresEn).map((feature) => (
-                      <li key={feature} className="flex items-start gap-2 text-sm text-foreground">
-                        <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                      <li key={feature} className="flex items-start gap-2 text-sm">
+                        <Check className={`mt-0.5 h-4 w-4 shrink-0 ${meta.highlighted ? "text-accent" : "text-primary"}`} />
                         <span>{feature}</span>
                       </li>
                     ))}
                   </ul>
-                  <Button variant={meta.highlighted ? "hero" : "outline"} className="mt-8" asChild>
+                  <Button
+                    variant={meta.highlighted ? "outline" : "hero"}
+                    className={`mt-8 ${meta.highlighted ? "bg-card text-foreground hover:bg-muted" : ""}`}
+                    asChild
+                  >
                     <Link to={planHref(plan.id)}>
                       {ar ? meta.ctaAr : meta.ctaEn}
                       <ArrowRight className="h-4 w-4 rtl:rotate-180" />
@@ -122,13 +133,13 @@ const Pricing = () => {
         </section>
 
         <section className="container mx-auto mt-20 max-w-3xl px-4">
-          <h2 className="font-display text-2xl font-bold text-foreground text-center">
+          <h2 className="font-display text-3xl md:text-4xl tracking-[0.04em] text-foreground text-center">
             {ar ? "أسئلة شائعة" : "Common questions"}
           </h2>
           <div className="mt-8 space-y-4">
             {faqs.map(([question, answer]) => (
-              <div key={question} className="rounded-2xl border border-border bg-card p-5 shadow-soft">
-                <h3 className="font-display text-lg font-semibold text-foreground">{question}</h3>
+              <div key={question} className="rounded-xl border-2 border-foreground bg-card p-5 shadow-offset">
+                <h3 className="font-display text-xl tracking-[0.04em] text-foreground">{question}</h3>
                 <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{answer}</p>
               </div>
             ))}
@@ -136,7 +147,7 @@ const Pricing = () => {
           {!isAuthenticated && (
             <p className="mt-8 text-center text-sm text-muted-foreground">
               {t("auth.hasAccount")}{" "}
-              <Link to="/login?next=/profile" className="text-primary font-medium hover:underline">
+              <Link to="/login?next=/profile" className="text-primary font-bold uppercase tracking-[0.04em] hover:underline">
                 {t("nav.signIn")}
               </Link>
             </p>

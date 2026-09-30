@@ -339,8 +339,11 @@ server {
     gzip_types text/plain text/css application/javascript application/json image/svg+xml;
     gzip_min_length 256;
 
+    # Use ^~ so these win over aaPanel / static-file regex rules (*.jpg, *.png, …).
+    # Without ^~, /uploads/foo.jpg is looked up under dist/ and returns 404.
+
     # Express API
-    location /api/ {
+    location ^~ /api/ {
         proxy_pass http://127.0.0.1:4000/api/;
         proxy_http_version 1.1;
         proxy_set_header Host $host;
@@ -350,7 +353,7 @@ server {
     }
 
     # Uploaded images (logo, etc.)
-    location /uploads/ {
+    location ^~ /uploads/ {
         proxy_pass http://127.0.0.1:4000/uploads/;
         proxy_http_version 1.1;
         proxy_set_header Host $host;
@@ -361,7 +364,7 @@ server {
         add_header Cache-Control "public";
     }
 
-    # Cache hashed Vite assets
+    # Cache hashed Vite assets (under dist/ only — after ^~ /uploads/)
     location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot|webp)$ {
         expires 1y;
         add_header Cache-Control "public, immutable";
@@ -402,10 +405,10 @@ location /api/ {
 }
 ```
 
-Correct:
+Correct (note **`^~`** — required on aaPanel because default `location ~ .*\.(jpg|png)$` rules otherwise steal `/uploads/*.jpg` and 404 from `dist/`):
 
 ```nginx
-location /api/ {
+location ^~ /api/ {
     proxy_pass http://127.0.0.1:4000/api/;
     proxy_http_version 1.1;
     proxy_set_header Host $host;
@@ -414,7 +417,7 @@ location /api/ {
     proxy_set_header X-Forwarded-Proto $scheme;
 }
 
-location /uploads/ {
+location ^~ /uploads/ {
     proxy_pass http://127.0.0.1:4000/uploads/;
     proxy_http_version 1.1;
     proxy_set_header Host $host;
@@ -594,7 +597,7 @@ If the app is not at the domain root, set Vite `base`, React Router `basename`, 
 | `/api/health` 502 | API not running: `pm2 status`, `curl 127.0.0.1:4000/api/health` |
 | DB connection errors | Check MySQL service, `DATABASE_URL`, user privileges |
 | Migrations fail / “Could not find Prisma Schema” | You are in the repo root. `cd backend` then retry (`backend/prisma/schema.prisma`) |
-| Images 404 | Nginx `/uploads/` proxy; `APP_URL` matches public domain; files exist under `backend/uploads` |
+| Images 404 | Use `location ^~ /uploads/` (not plain `/uploads/`) so jpg/png regex rules don’t serve from `dist/`; confirm file exists under `backend/uploads/<userId>/`; `APP_URL=https://your-domain` |
 | Upload too large | Raise Nginx `client_max_body_size` and `UPLOAD_MAX_MB` |
 | SSL fails | DNS not pointing yet; retry Certbot later |
 | Old frontend after deploy | Confirm new `dist/` files; hard refresh; rebuild after env change |

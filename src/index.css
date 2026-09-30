@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Cormorant+Garamond:wght@500;600;700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Caveat:wght@500;700&family=Cairo:wght@400;600;700&family=Inter:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&family=Open+Sans:wght@300;400;500;600;700&family=Lato:wght@300;400;700&family=Montserrat:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Grotesk:wght@400;500;600;700&family=Cairo:wght@400;600;700;800&family=Playfair+Display:wght@400;500;600;700&family=Cormorant+Garamond:wght@500;600;700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Caveat:wght@500;700&family=Inter:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&family=Open+Sans:wght@300;400;500;600;700&family=Lato:wght@300;400;700&family=Montserrat:wght@300;400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,107 +6,120 @@
 
 @layer base {
   :root {
-    --background: 35 30% 97%;
-    --foreground: 25 25% 15%;
+    /* Sortak Retro Studio — design.md */
+    --background: 39 41% 92%; /* #f3ede2 neutral */
+    --foreground: 18 32% 8%; /* #1b120e */
 
-    --card: 35 40% 99%;
-    --card-foreground: 25 25% 15%;
+    --card: 39 47% 94%; /* #f7f2e9 surface */
+    --card-foreground: 18 32% 8%;
 
-    --popover: 35 40% 99%;
-    --popover-foreground: 25 25% 15%;
+    --popover: 39 47% 94%;
+    --popover-foreground: 18 32% 8%;
 
-    --primary: 20 60% 50%;
-    --primary-foreground: 35 30% 98%;
+    --primary: 0 72% 45%; /* #c52020 */
+    --primary-foreground: 39 47% 94%; /* tertiary cream */
 
-    --secondary: 35 35% 92%;
-    --secondary-foreground: 25 25% 20%;
+    --secondary: 39 47% 94%; /* tertiary as light surface */
+    --secondary-foreground: 18 32% 8%;
 
-    --muted: 35 20% 94%;
-    --muted-foreground: 25 15% 45%;
+    --muted: 39 30% 88%;
+    --muted-foreground: 22 13% 37%; /* #6a5a51 */
 
-    --accent: 38 80% 55%;
-    --accent-foreground: 25 25% 15%;
+    --accent: 44 81% 50%; /* #e7b11a primary-soft */
+    --accent-foreground: 18 32% 8%;
 
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 100%;
+    --destructive: 0 72% 45%;
+    --destructive-foreground: 39 47% 94%;
 
-    --border: 35 25% 88%;
-    --input: 35 25% 88%;
-    --ring: 20 60% 50%;
+    --border: 18 32% 8%;
+    --input: 18 32% 8%;
+    --ring: 0 72% 45%;
 
-    --radius: 0.75rem;
+    --radius: 0.5rem; /* 8px — assertive, not pill */
 
-    /* Custom tokens */
-    --terracotta: 20 60% 50%;
-    --terracotta-light: 20 55% 65%;
-    --terracotta-dark: 20 65% 40%;
-    --golden: 38 80% 55%;
-    --golden-light: 38 75% 70%;
-    --cream: 35 40% 97%;
-    --cream-dark: 35 30% 92%;
-    --burgundy: 350 50% 35%;
-    --burgundy-light: 350 45% 45%;
+    --primary-strong: 0 75% 38%; /* #a81818 */
+    --primary-soft: 44 81% 50%; /* #e7b11a */
+    --espresso: 18 32% 8%;
+    --paper: 39 41% 92%;
+    --surface: 39 47% 94%;
+    --success: 162 53% 40%; /* #2f9b7a */
 
-    /* Gradients */
-    --gradient-hero: linear-gradient(135deg, hsl(20 60% 50%) 0%, hsl(38 80% 55%) 100%);
-    --gradient-card: linear-gradient(180deg, hsl(35 40% 99%) 0%, hsl(35 35% 96%) 100%);
-    --gradient-overlay: linear-gradient(180deg, transparent 0%, hsl(25 25% 15% / 0.8) 100%);
+    /* Legacy aliases used across the app */
+    --terracotta: 0 72% 45%;
+    --terracotta-light: 0 65% 58%;
+    --terracotta-dark: 0 75% 38%;
+    --golden: 44 81% 50%;
+    --golden-light: 44 75% 62%;
+    --cream: 39 47% 94%;
+    --cream-dark: 39 35% 88%;
+    --burgundy: 0 72% 38%;
+    --burgundy-light: 0 55% 48%;
 
-    /* Shadows */
-    --shadow-soft: 0 4px 20px -4px hsl(25 25% 15% / 0.1);
-    --shadow-card: 0 8px 30px -8px hsl(25 25% 15% / 0.12);
-    --shadow-glow: 0 0 40px hsl(20 60% 50% / 0.25);
+    /* No soft gradients — solid / hard poster fills */
+    --gradient-hero: #c52020;
+    --gradient-card: #f7f2e9;
+    --gradient-overlay: linear-gradient(180deg, transparent 0%, hsl(18 32% 8% / 0.85) 100%);
 
-    --sidebar-background: 35 30% 97%;
-    --sidebar-foreground: 25 25% 30%;
-    --sidebar-primary: 20 60% 50%;
-    --sidebar-primary-foreground: 35 30% 98%;
-    --sidebar-accent: 35 35% 92%;
-    --sidebar-accent-foreground: 25 25% 20%;
-    --sidebar-border: 35 25% 88%;
-    --sidebar-ring: 20 60% 50%;
+    /* Hard offset shadows (sticker / comic-book) */
+    --shadow-soft: 3px 3px 0 hsl(18 32% 8%);
+    --shadow-card: 4px 4px 0 hsl(18 32% 8%);
+    --shadow-glow: 6px 6px 0 hsl(18 32% 8%);
+    --shadow-inset: inset 2px 2px 0 hsl(18 32% 8% / 0.08);
 
-    --font-display: "Playfair Display", serif;
-    --font-sans: "Inter", sans-serif;
+    --sidebar-background: 39 47% 94%;
+    --sidebar-foreground: 18 32% 8%;
+    --sidebar-primary: 0 72% 45%;
+    --sidebar-primary-foreground: 39 47% 94%;
+    --sidebar-accent: 39 30% 88%;
+    --sidebar-accent-foreground: 18 32% 8%;
+    --sidebar-border: 18 32% 8%;
+    --sidebar-ring: 0 72% 45%;
+
+    --font-display: "Bebas Neue", "Cairo", sans-serif;
+    --font-sans: "Space Grotesk", "Cairo", sans-serif;
   }
 
   .dark {
-    --background: 25 25% 10%;
-    --foreground: 35 30% 95%;
+    --background: 18 32% 8%;
+    --foreground: 39 47% 94%;
 
-    --card: 25 20% 14%;
-    --card-foreground: 35 30% 95%;
+    --card: 18 25% 12%;
+    --card-foreground: 39 47% 94%;
 
-    --popover: 25 20% 14%;
-    --popover-foreground: 35 30% 95%;
+    --popover: 18 25% 12%;
+    --popover-foreground: 39 47% 94%;
 
-    --primary: 20 55% 55%;
-    --primary-foreground: 25 25% 10%;
+    --primary: 0 72% 50%;
+    --primary-foreground: 39 47% 94%;
 
-    --secondary: 25 20% 18%;
-    --secondary-foreground: 35 30% 90%;
+    --secondary: 18 20% 16%;
+    --secondary-foreground: 39 40% 90%;
 
-    --muted: 25 15% 20%;
-    --muted-foreground: 35 20% 60%;
+    --muted: 18 15% 18%;
+    --muted-foreground: 30 15% 60%;
 
-    --accent: 38 75% 50%;
-    --accent-foreground: 25 25% 10%;
+    --accent: 44 81% 50%;
+    --accent-foreground: 18 32% 8%;
 
-    --destructive: 0 62% 45%;
-    --destructive-foreground: 0 0% 100%;
+    --destructive: 0 72% 50%;
+    --destructive-foreground: 39 47% 94%;
 
-    --border: 25 15% 22%;
-    --input: 25 15% 22%;
-    --ring: 20 55% 55%;
+    --border: 39 30% 70%;
+    --input: 39 30% 70%;
+    --ring: 0 72% 50%;
 
-    --sidebar-background: 25 20% 12%;
-    --sidebar-foreground: 35 30% 90%;
-    --sidebar-primary: 20 55% 55%;
-    --sidebar-primary-foreground: 25 25% 10%;
-    --sidebar-accent: 25 15% 18%;
-    --sidebar-accent-foreground: 35 30% 90%;
-    --sidebar-border: 25 15% 20%;
-    --sidebar-ring: 20 55% 55%;
+    --shadow-soft: 3px 3px 0 hsl(39 47% 80%);
+    --shadow-card: 4px 4px 0 hsl(39 47% 80%);
+    --shadow-glow: 6px 6px 0 hsl(39 47% 80%);
+
+    --sidebar-background: 18 25% 10%;
+    --sidebar-foreground: 39 40% 90%;
+    --sidebar-primary: 0 72% 50%;
+    --sidebar-primary-foreground: 39 47% 94%;
+    --sidebar-accent: 18 15% 16%;
+    --sidebar-accent-foreground: 39 40% 90%;
+    --sidebar-border: 18 15% 22%;
+    --sidebar-ring: 0 72% 50%;
   }
 }
 
@@ -122,24 +135,45 @@
   body {
     @apply bg-background text-foreground font-sans antialiased;
     font-family: var(--font-sans);
+    font-size: 14px;
+    line-height: 1.64;
   }
 
   ::selection {
-    background: hsl(var(--primary) / 0.22);
+    background: hsl(var(--primary) / 0.2);
+    color: hsl(var(--foreground));
   }
 
   .lucide {
-    stroke-width: 1.75;
+    stroke-width: 2.25;
   }
 
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-display);
+    font-weight: 400;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+  }
+
+  [dir="rtl"] h1,
+  [dir="rtl"] h2,
+  [dir="rtl"] h3,
+  [dir="rtl"] h4,
+  [dir="rtl"] .font-display {
+    font-family: "Cairo", var(--font-sans), sans-serif;
+    letter-spacing: 0;
+    font-weight: 800;
+  }
+
+  [dir="rtl"] body {
+    font-family: "Cairo", var(--font-sans), sans-serif;
   }
 }
 
 @layer utilities {
   .font-display {
     font-family: var(--font-display);
+    letter-spacing: 0.02em;
   }
 
   .font-body {
@@ -147,14 +181,13 @@
   }
 
   .text-gradient {
-    background: var(--gradient-hero);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    color: hsl(var(--primary));
+    background: none;
+    -webkit-text-fill-color: unset;
   }
 
   .bg-gradient-hero {
-    background: var(--gradient-hero);
+    background: hsl(var(--primary));
   }
 
   .shadow-soft {
@@ -169,6 +202,67 @@
     box-shadow: var(--shadow-glow);
   }
 
+  .shadow-offset {
+    box-shadow: 3px 3px 0 hsl(var(--foreground));
+  }
+
+  .shadow-offset-lg {
+    box-shadow: 5px 5px 0 hsl(var(--foreground));
+  }
+
+  .border-hard {
+    border: 2px solid hsl(var(--foreground));
+  }
+
+  .label-shout {
+    font-family: var(--font-sans);
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .overline-label {
+    font-family: var(--font-sans);
+    font-size: 12px;
+    font-weight: 800;
+    line-height: 14px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .chip-retro {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: hsl(var(--accent));
+    color: hsl(var(--foreground));
+    border: 2px solid hsl(var(--foreground));
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-family: var(--font-sans);
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    box-shadow: 3px 3px 0 hsl(var(--foreground));
+  }
+
+  .card-retro {
+    background: hsl(var(--card));
+    color: hsl(var(--card-foreground));
+    border: 2px solid hsl(var(--foreground));
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 4px 4px 0 hsl(var(--foreground));
+  }
+
+  .paper-grain {
+    background-color: hsl(var(--background));
+    background-image:
+      radial-gradient(hsl(18 32% 8% / 0.03) 0.6px, transparent 0.6px);
+    background-size: 6px 6px;
+  }
+
   /* RTL Support */
   [dir="rtl"] {
     direction: rtl;
@@ -180,7 +274,6 @@
     text-align: left;
   }
 
-  /* RTL-specific adjustments */
   [dir="rtl"] .mr-1,
   [dir="rtl"] .mr-2,
   [dir="rtl"] .mr-4 {
@@ -194,17 +287,35 @@
     margin-right: var(--tw-space-x-reverse);
   }
 
-  /* Flex direction adjustments for RTL */
   [dir="rtl"] .flex-row {
     flex-direction: row-reverse;
   }
 
-  /* Text alignment */
   [dir="rtl"] .text-left {
     text-align: right;
   }
 
   [dir="rtl"] .text-right {
     text-align: left;
+  }
+
+  [dir="rtl"] .shadow-soft,
+  [dir="rtl"] .shadow-card,
+  [dir="rtl"] .shadow-glow,
+  [dir="rtl"] .shadow-offset,
+  [dir="rtl"] .shadow-offset-lg,
+  [dir="rtl"] .chip-retro,
+  [dir="rtl"] .card-retro {
+    box-shadow: -3px 3px 0 hsl(var(--foreground));
+  }
+
+  [dir="rtl"] .shadow-card,
+  [dir="rtl"] .card-retro {
+    box-shadow: -4px 4px 0 hsl(var(--foreground));
+  }
+
+  [dir="rtl"] .shadow-glow,
+  [dir="rtl"] .shadow-offset-lg {
+    box-shadow: -5px 5px 0 hsl(var(--foreground));
   }
 }
