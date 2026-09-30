@@ -63,23 +63,35 @@ adduser deploy
 usermod -aG sudo deploy
 ```
 
-Suggested layout:
+Suggested layout (paths vary by panel):
+
+| Setup | Project root example |
+|-------|----------------------|
+| Manual / Nginx | `/var/www/carta` |
+| aaPanel / BT Panel | `/www/wwwroot/menu-maker` |
+
+This guide uses one git clone at the project root:
 
 ```text
-/var/www/carta/
-├── frontend/          # git clone of the repo (or SPA build source)
-├── dist/              # built SPA files served by Nginx  (or frontend/dist)
-└── backend/           # API (can live inside the clone: /var/www/carta/backend)
+/www/wwwroot/menu-maker/     # or /var/www/carta/
+├── dist/                    # npm run build output (SPA)
+├── backend/                 # Express API + Prisma
+│   ├── prisma/
+│   │   └── schema.prisma    # ← prisma commands need this folder
+│   ├── .env
+│   └── package.json
+└── package.json             # frontend only — do NOT run prisma here
 ```
 
-This guide uses one git clone:
+**Important:** Always run Prisma from `backend/`:
 
-```text
-/var/www/carta/                 # repository root
-├── dist/                       # npm run build output (SPA)
-├── backend/                    # Express API
-└── ...
+```bash
+cd /www/wwwroot/menu-maker/backend   # adjust path if needed
+npx prisma generate
+npx prisma migrate deploy
 ```
+
+Running `npx prisma …` from the repo root fails with “Could not find Prisma Schema”.
 
 ---
 
@@ -167,18 +179,23 @@ ufw status
 ## 5. Clone the project
 
 ```bash
-mkdir -p /var/www
-cd /var/www
-git clone YOUR_GIT_REPO_URL carta
-cd carta
+# Example (aaPanel):
+cd /www/wwwroot
+git clone YOUR_GIT_REPO_URL menu-maker
+cd menu-maker
+
+# Or manual:
+# mkdir -p /var/www && cd /var/www && git clone YOUR_GIT_REPO_URL carta && cd carta
 ```
+
+Below, replace `/www/wwwroot/menu-maker` with your real project root if different.
 
 ---
 
 ## 6. Configure and start the API
 
 ```bash
-cd /var/www/carta/backend
+cd /www/wwwroot/menu-maker/backend
 cp .env.example .env
 nano .env
 ```
@@ -215,10 +232,10 @@ Notes:
 - `JWT_SECRET` must be unique and private; rotating it logs everyone out.
 - Never commit `.env`.
 
-Install, migrate, build, run:
+Install, migrate, build, run (**must be inside `backend/`**):
 
 ```bash
-cd /var/www/carta/backend
+cd /www/wwwroot/menu-maker/backend
 npm ci
 npx prisma generate
 npx prisma migrate deploy
@@ -258,7 +275,7 @@ pm2 restart carta-api
 `VITE_API_URL` is compiled into the JS bundle. Set it **before** `npm run build`.
 
 ```bash
-cd /var/www/carta
+cd /www/wwwroot/menu-maker
 nano .env.production
 ```
 
@@ -272,19 +289,20 @@ Or export once:
 export VITE_API_URL=https://yourdomain.com/api
 ```
 
-Build:
+Build (from **repo root**, not `backend/`):
 
 ```bash
-cd /var/www/carta
+cd /www/wwwroot/menu-maker
 npm ci
 npm run build
-# output: /var/www/carta/dist
+# output: /www/wwwroot/menu-maker/dist
 ```
 
-Permissions for Nginx:
+Permissions for Nginx (user may be `www` on aaPanel):
 
 ```bash
-chown -R www-data:www-data /var/www/carta/dist
+chown -R www:www /www/wwwroot/menu-maker/dist
+# or: chown -R www-data:www-data /www/wwwroot/menu-maker/dist
 ```
 
 ### Build on your PC instead
@@ -294,7 +312,7 @@ chown -R www-data:www-data /var/www/carta/dist
 echo "VITE_API_URL=https://yourdomain.com/api" > .env.production
 npm ci
 npm run build
-rsync -avz --delete dist/ root@YOUR_SERVER_IP:/var/www/carta/dist/
+rsync -avz --delete dist/ root@YOUR_SERVER_IP:/www/wwwroot/menu-maker/dist/
 ```
 
 ---
@@ -312,7 +330,7 @@ server {
 
     server_name yourdomain.com www.yourdomain.com;
 
-    root /var/www/carta/dist;
+    root /www/wwwroot/menu-maker/dist;
     index index.html;
 
     client_max_body_size 8m;
@@ -372,6 +390,63 @@ systemctl reload nginx
 
 Visit `http://yourdomain.com` (or the server IP while testing).
 
+### aaPanel / BT Panel important fix
+
+On aaPanel you edit the site’s Nginx config in the panel. **`proxy_pass` must target the Node process on localhost**, not the public domain.
+
+Wrong (causes **502** / loop — do not use):
+
+```nginx
+location /api/ {
+    proxy_pass https://menu-maker.digitaura.net/api/;
+}
+```
+
+Correct:
+
+```nginx
+location /api/ {
+    proxy_pass http://127.0.0.1:4000/api/;
+    proxy_http_version 1.1;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+}
+
+location /uploads/ {
+    proxy_pass http://127.0.0.1:4000/uploads/;
+    proxy_http_version 1.1;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+}
+```
+
+Also set `client_max_body_size 8m;` in the `server { }` block for uploads.
+
+Before testing the browser, confirm the API is up:
+
+```bash
+pm2 status
+curl -s http://127.0.0.1:4000/api/health
+```
+
+If that curl fails, fix PM2 / `backend/.env` first — Nginx cannot proxy to a dead process.
+
+Example production env for this domain:
+
+```env
+# backend/.env
+APP_URL=https://menu-maker.digitaura.net
+FRONTEND_URL=https://menu-maker.digitaura.net
+CORS_ORIGINS=https://menu-maker.digitaura.net
+
+# frontend .env.production (rebuild SPA after change)
+VITE_API_URL=https://menu-maker.digitaura.net/api
+```
+
 ---
 
 ## 9. HTTPS with Let’s Encrypt
@@ -403,10 +478,10 @@ certbot renew --dry-run
 ## 10. Redeploy after code changes
 
 ```bash
-cd /var/www/carta
+cd /www/wwwroot/menu-maker
 git pull
 
-# Backend
+# Backend — prisma only works from here
 cd backend
 npm ci
 npx prisma generate
@@ -415,11 +490,11 @@ npm run build
 pm2 restart carta-api
 
 # Frontend (keep production API URL)
-cd /var/www/carta
+cd /www/wwwroot/menu-maker
 # ensure .env.production still has VITE_API_URL=https://yourdomain.com/api
 npm ci
 npm run build
-chown -R www-data:www-data dist
+chown -R www:www dist
 ```
 
 ### Deploy script example
@@ -430,7 +505,7 @@ Save as `/usr/local/bin/deploy-carta`:
 #!/usr/bin/env bash
 set -euo pipefail
 
-ROOT=/var/www/carta
+ROOT=/www/wwwroot/menu-maker
 DOMAIN_API_URL="${VITE_API_URL:-https://yourdomain.com/api}"
 
 cd "$ROOT"
@@ -447,7 +522,7 @@ cd "$ROOT"
 export VITE_API_URL="$DOMAIN_API_URL"
 npm ci
 npm run build
-chown -R www-data:www-data "$ROOT/dist"
+chown -R www:www "$ROOT/dist"
 
 echo "Carta deployed."
 curl -s http://127.0.0.1:4000/api/health
@@ -518,7 +593,7 @@ If the app is not at the domain root, set Vite `base`, React Router `basename`, 
 | 404 on refresh of `/builder/...` or `/admin` | Missing SPA `try_files … /index.html;` |
 | `/api/health` 502 | API not running: `pm2 status`, `curl 127.0.0.1:4000/api/health` |
 | DB connection errors | Check MySQL service, `DATABASE_URL`, user privileges |
-| Migrations fail | Run `npx prisma migrate deploy` from `backend/` with correct `.env` |
+| Migrations fail / “Could not find Prisma Schema” | You are in the repo root. `cd backend` then retry (`backend/prisma/schema.prisma`) |
 | Images 404 | Nginx `/uploads/` proxy; `APP_URL` matches public domain; files exist under `backend/uploads` |
 | Upload too large | Raise Nginx `client_max_body_size` and `UPLOAD_MAX_MB` |
 | SSL fails | DNS not pointing yet; retry Certbot later |
@@ -540,7 +615,8 @@ journalctl -u mysql -n 50   # if using system MySQL
 - [ ] Ports 22 / 80 / 443 only (not 3306 / 4000 public)  
 - [ ] Domain `A` → VPS IP  
 - [ ] Node 20, Nginx, PM2, MySQL installed  
-- [ ] Repo cloned under `/var/www/carta`  
+- [ ] Repo cloned (e.g. `/www/wwwroot/menu-maker`)  
+- [ ] Commands for Prisma run from `backend/` (not repo root)  
 - [ ] `backend/.env` production values set  
 - [ ] `prisma migrate deploy` + `npm run build` + `pm2 start carta-api`  
 - [ ] `curl 127.0.0.1:4000/api/health` OK  
